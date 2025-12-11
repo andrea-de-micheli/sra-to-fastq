@@ -17,19 +17,32 @@ def main():
     ds = PreprocessDataset.from_running()
     
     # Log what we're working with
-    ds.logger.info(f"Dataset ID: {ds.dataset['id']}")
-    ds.logger.info(f"Dataset S3 path: {ds.dataset['s3']}")
     ds.logger.info(f"Parameters: {ds.params}")
     
+    # Debug: Check what attributes are available
+    ds.logger.info(f"Available attributes: {[attr for attr in dir(ds) if not attr.startswith('_')]}")
+    
     # Check the files in the input dataset
+    ds.logger.info(f"Files DataFrame shape: {ds.files.shape}")
+    ds.logger.info(f"Files DataFrame columns: {ds.files.columns.tolist()}")
     ds.logger.info(f"Files in dataset:\n{ds.files}")
     
-    # Count SRA files
-    sra_files = ds.files[ds.files['name'].str.endswith('.sra')]
-    ds.logger.info(f"Found {len(sra_files)} SRA files to convert")
+    # Check if we have an input_dir parameter
+    input_dir = ds.params.get('input_dir')
+    if input_dir:
+        ds.logger.info(f"Input directory from params: {input_dir}")
+        ds.logger.info("Note: Nextflow will check for .sra files at this S3 path")
     
-    if len(sra_files) == 0:
-        raise ValueError("No .sra files found in input dataset!")
+    # Count SRA files (if DataFrame has data)
+    if len(ds.files) > 0:
+        sra_files = ds.files[ds.files['file'].str.endswith('.sra')]
+        ds.logger.info(f"Found {len(sra_files)} SRA files in ds.files DataFrame")
+        
+        if len(sra_files) == 0:
+            ds.logger.warning("No .sra files found in ds.files DataFrame, but files may exist in S3")
+    else:
+        ds.logger.warning("ds.files DataFrame is empty. This may be normal if files aren't registered in Cirro metadata.")
+        ds.logger.info("Nextflow will validate files exist at the input_dir S3 path")
     
     # The process-input.json handles parameter mapping, 
     # but we could also add/modify params here if needed:
