@@ -1,5 +1,5 @@
 {
-    "input_dir": "$.inputs[*].dataPath", //S3 path to the input dataset  (Cirro resolves this)
-    "threads": "$.dataset.params.threads", //Number of threads for fasterq-dump (From user form)
-    "outdir": "$.dataset.dataPath" //S3 path to the output dataset Cirro resolves this)
+    "input_dir": "$.inputs[*].dataPath",
+    "threads": "$.dataset.params.threads",
+    "outdir": "$.dataset.dataPath"
 }
