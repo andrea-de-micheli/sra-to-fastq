@@ -1,0 +1,22 @@
+{
+    "ui": {
+        "threads": {
+            "ui:help": "More threads = faster conversion but higher cost"
+        }
+    },
+    "form": {
+        "title": "SRA to FASTQ Conversion",
+        "description": "Convert SRA files to compressed FASTQ format using fasterq-dump",
+        "type": "object",
+        "properties": {
+            "threads": {
+                "title": "CPU Threads",
+                "description": "Number of CPU threads for fasterq-dump (4-8 recommended)",
+                "type": "integer",
+                "default": 8,
+                "minimum": 4,
+                "maximum": 32
+            }
+        }
+    }
+}
