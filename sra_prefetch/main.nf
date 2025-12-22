@@ -9,6 +9,7 @@ nextflow.enable.dsl=2
 // Parameters (populated by Cirro via process-input.json)
 params.ngc_file = null      // Path to NGC key file
 params.sra_list_file = null // Path to file containing list of SRA IDs (one per line)
+params.max_file_size = 500  // Max expected file size in GB (default: 500 GB)
 params.outdir = "results"   // Output directory
 
 // Log parameters
@@ -17,6 +18,7 @@ log.info """
     =====================
     ngc_file      : ${params.ngc_file}
     sra_list_file : ${params.sra_list_file}
+    max_file_size : ${params.max_file_size} GB
     outdir        : ${params.outdir}
     """
     .stripIndent()
@@ -33,7 +35,7 @@ process PREFETCH_SRA {
     // Resource allocation
     cpus 2
     memory '8 GB'
-    disk '500 GB'
+    disk "${params.max_file_size} GB"
     
     // Publish outputs to results directory
     // Prefetch creates a directory for each SRA, so we copy the entire directory
@@ -48,8 +50,8 @@ process PREFETCH_SRA {
     
     script:
     """
-    # Run prefetch with NGC key
-    prefetch ${sra_id} --ngc ${ngc_file}
+    # Run prefetch with NGC key (--max-size 0 removes size limit)
+    prefetch ${sra_id} --ngc ${ngc_file} --max-size 0
     """
 }
 
@@ -61,7 +63,7 @@ workflow {
     sra_list_file = file(params.sra_list_file)
     sra_ch = Channel
         .fromPath(sra_list_file)
-        .splitText(by: ~/\n/)
+        .splitText()
         .map { it.trim() }
         .filter { it && !it.startsWith('#') }
         .ifEmpty { error "No SRA IDs found in ${params.sra_list_file}" }

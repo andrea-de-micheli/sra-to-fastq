@@ -1,18 +1,20 @@
 {
     "ui": {
-        "sra_list": {
-            "ui:widget": "textarea",
-            "ui:help": "Enter one SRA ID per line (e.g., SRR12345678)"
-        },
         "ngc_file": {
             "ui:help": "Upload your NGC key file (.ngc) for accessing controlled-access SRA data"
+        },
+        "sra_list_file": {
+            "ui:help": "Upload a text file with SRA IDs, one per line (e.g., SRR12345678)"
+        },
+        "max_file_size": {
+            "ui:help": "Allocate disk space based on the largest expected SRA file. Larger values allow bigger files but may increase costs."
         }
     },
     "form": {
         "title": "SRA Prefetch",
         "description": "Download SRA files using prefetch with NGC key authentication",
         "type": "object",
-        "required": ["ngc_file", "sra_list"],
+        "required": ["ngc_file", "sra_list_file"],
         "properties": {
             "ngc_file": {
                 "title": "NGC Key File",
@@ -20,11 +22,19 @@
                 "type": "string",
                 "format": "data-url"
             },
-            "sra_list": {
-                "title": "SRA IDs",
-                "description": "Enter SRA IDs, one per line (e.g., SRR12345678, SRR87654321)",
+            "sra_list_file": {
+                "title": "SRA IDs File",
+                "description": "Upload a text file (.txt) containing SRA IDs, one per line",
                 "type": "string",
-                "default": ""
+                "format": "data-url"
+            },
+            "max_file_size": {
+                "title": "Max Expected File Size (GB)",
+                "description": "Maximum expected size for a single SRA file. This determines the disk space allocated per file (500-1000 GB)",
+                "type": "integer",
+                "default": 500,
+                "minimum": 500,
+                "maximum": 1000
             }
         }
     }

@@ -1,6 +1,7 @@
 {
     "ngc_file": "$.dataset.params.ngc_file",
     "sra_list_file": "$.dataset.params.sra_list_file",
+    "max_file_size": "$.dataset.params.max_file_size",
     "outdir": "$.dataset.dataPath"
 }
 
