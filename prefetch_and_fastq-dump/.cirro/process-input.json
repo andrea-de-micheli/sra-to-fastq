@@ -1,0 +1,9 @@
+{
+    "ngc_file": "$.dataset.params.ngc_file",
+    "sra_list_file": "$.dataset.params.sra_list_file",
+    "convert_to_fastq": "$.dataset.params.convert_to_fastq",
+    "threads": "$.dataset.params.threads",
+    "disk_size": "$.dataset.params.disk_size",
+    "outdir": "$.dataset.dataPath"
+}
+

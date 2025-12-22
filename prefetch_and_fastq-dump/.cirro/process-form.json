@@ -1,0 +1,62 @@
+{
+    "ui": {
+        "ngc_file": {
+            "ui:help": "Upload your NGC key file (.ngc) for accessing controlled-access SRA data"
+        },
+        "sra_list_file": {
+            "ui:help": "Upload a text file with SRA IDs, one per line"
+        },
+        "convert_to_fastq": {
+            "ui:help": "If checked, converts downloaded SRA files to compressed FASTQ format"
+        },
+        "threads": {
+            "ui:help": "Number of CPU threads for fasterq-dump (only used if converting to FASTQ)"
+        },
+        "disk_size": {
+            "ui:help": "Disk space allocation per file in GB"
+        }
+    },
+    "form": {
+        "title": "SRA Prefetch and FASTQ Conversion",
+        "description": "Download SRA files and optionally convert to FASTQ format",
+        "type": "object",
+        "required": ["ngc_file", "sra_list_file"],
+        "properties": {
+            "ngc_file": {
+                "title": "NGC Key File",
+                "description": "Upload your NGC key file (.ngc) for accessing controlled-access SRA data",
+                "type": "string",
+                "format": "data-url"
+            },
+            "sra_list_file": {
+                "title": "SRA IDs File",
+                "description": "Upload a text file (.txt) containing SRA IDs, one per line",
+                "type": "string",
+                "format": "data-url"
+            },
+            "convert_to_fastq": {
+                "title": "Convert to FASTQ",
+                "description": "Convert downloaded SRA files to compressed FASTQ format",
+                "type": "boolean",
+                "default": false
+            },
+            "threads": {
+                "title": "CPU Threads",
+                "description": "Number of CPU threads for fasterq-dump (4-8 recommended)",
+                "type": "integer",
+                "default": 4,
+                "minimum": 1,
+                "maximum": 32
+            },
+            "disk_size": {
+                "title": "Disk Size (GB)",
+                "description": "Disk space allocation per file (500-1000 GB)",
+                "type": "integer",
+                "default": 500,
+                "minimum": 500,
+                "maximum": 1000
+            }
+        }
+    }
+}
+
