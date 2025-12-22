@@ -1,0 +1,6 @@
+{
+    "ngc_file": "$.dataset.params.ngc_file",
+    "sra_list_file": "$.dataset.params.sra_list_file",
+    "outdir": "$.dataset.dataPath"
+}
+

@@ -1,0 +1,32 @@
+{
+    "ui": {
+        "sra_list": {
+            "ui:widget": "textarea",
+            "ui:help": "Enter one SRA ID per line (e.g., SRR12345678)"
+        },
+        "ngc_file": {
+            "ui:help": "Upload your NGC key file (.ngc) for accessing controlled-access SRA data"
+        }
+    },
+    "form": {
+        "title": "SRA Prefetch",
+        "description": "Download SRA files using prefetch with NGC key authentication",
+        "type": "object",
+        "required": ["ngc_file", "sra_list"],
+        "properties": {
+            "ngc_file": {
+                "title": "NGC Key File",
+                "description": "Upload your NGC key file (.ngc) for accessing controlled-access SRA data",
+                "type": "string",
+                "format": "data-url"
+            },
+            "sra_list": {
+                "title": "SRA IDs",
+                "description": "Enter SRA IDs, one per line (e.g., SRR12345678, SRR87654321)",
+                "type": "string",
+                "default": ""
+            }
+        }
+    }
+}
+
