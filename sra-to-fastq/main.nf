@@ -32,8 +32,8 @@ process SRA_TO_FASTQ {
     
     // Resource allocation
     cpus params.threads
-    memory '16 GB'
-    disk '200 GB'
+    memory '32 GB'
+    disk '2500 GB'
     
     // Publish outputs to results directory
     publishDir "${params.outdir}", mode: 'copy', pattern: "*.fastq.gz"
