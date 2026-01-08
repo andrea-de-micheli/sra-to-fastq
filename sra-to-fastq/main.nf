@@ -10,6 +10,7 @@ nextflow.enable.dsl=2
 params.input_dir = null      // S3 path to input dataset
 params.threads = 4           // CPU threads for fasterq-dump
 params.outdir = "results"    // Output directory
+params.skip_sra_ids = null   // Comma-separated list of SRA IDs to skip
 
 // Log parameters
 log.info """
@@ -71,6 +72,29 @@ workflow {
     sra_ch = Channel
         .fromPath("${params.input_dir}/**/*.sra", checkIfExists: true)
         .ifEmpty { error "No .sra files found in ${params.input_dir}" }
+    
+    // Filter out skipped SRA files if skip_sra_ids is provided
+    // Supports both comma-separated and newline-separated lists
+    def skip_list = []
+    if (params.skip_sra_ids) {
+        // Split by both comma and newline, then filter out empty strings
+        skip_list = params.skip_sra_ids
+            .split(/[,\n\r]+/)
+            .collect { it.trim() }
+            .findAll { it.length() > 0 }
+    }
+    
+    if (skip_list) {
+        log.info "Skipping ${skip_list.size()} SRA IDs: ${skip_list.join(', ')}"
+        sra_ch = sra_ch.filter { sra_file ->
+            def sra_id = sra_file.getName().replace('.sra', '')
+            def should_skip = skip_list.contains(sra_id)
+            if (should_skip) {
+                log.info "Skipping SRA file: ${sra_file}"
+            }
+            !should_skip
+        }
+    }
     
     // Log what we found
     sra_ch.view { "Found SRA file: ${it}" }

@@ -2,6 +2,12 @@
     "ui": {
         "threads": {
             "ui:help": "More threads = faster conversion but higher cost"
+        },
+        "skip_sra_ids": {
+            "ui:help": "List of SRA IDs to skip. Can be comma-separated (SRR12345678,SRR87654321) or one per line. Leave empty to process all files."
+        },
+        "samplesheet_file": {
+            "ui:help": "Optional: Upload a CSV file that will be saved as samplesheet.csv for use in downstream analysis"
         }
     },
     "form": {
@@ -16,6 +22,18 @@
                 "default": 8,
                 "minimum": 4,
                 "maximum": 32
+            },
+            "skip_sra_ids": {
+                "title": "Skip SRA IDs",
+                "description": "List of SRA IDs to skip during conversion. Can be comma-separated (SRR12345678,SRR87654321) or one per line. Leave empty to process all files.",
+                "type": "string",
+                "default": ""
+            },
+            "samplesheet_file": {
+                "title": "Sample Sheet (Optional)",
+                "description": "Upload a CSV file that will be saved as samplesheet.csv in the output dataset",
+                "type": "string",
+                "format": "data-url"
             }
         }
     }
