@@ -52,6 +52,8 @@ process SRA_TO_FASTQ {
     fasterq-dump \\
         --split-files \\
         --threads ${task.cpus} \\
+        --disk-limit-tmp 0 \\
+        --disk-limit 0 \\
         --temp . \\
         --outdir . \\
         ${sra_file}
