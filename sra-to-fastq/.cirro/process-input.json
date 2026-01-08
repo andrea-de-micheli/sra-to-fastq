@@ -2,5 +2,6 @@
     "input_dir": "$.inputs[*].dataPath",
     "threads": "$.dataset.params.threads",
     "skip_sra_ids": "$.dataset.params.skip_sra_ids",
+    "samplesheet_file": "$.dataset.params.samplesheet_file",
     "outdir": "$.dataset.dataPath"
 }

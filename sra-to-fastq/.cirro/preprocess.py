@@ -7,9 +7,9 @@ It can be used to:
 - Validate inputs
 - Create samplesheets
 - Modify parameters
-
-For this simple pipeline, we just validate that SRA files exist.
 """
+import base64
+import os
 from cirro.helpers.preprocess_dataset import PreprocessDataset
 
 def main():
@@ -19,13 +19,21 @@ def main():
     # Log what we're working with
     ds.logger.info(f"Parameters: {ds.params}")
     
-    # Debug: Check what attributes are available
-    ds.logger.info(f"Available attributes: {[attr for attr in dir(ds) if not attr.startswith('_')]}")
-    
-    # Check the files in the input dataset
-    ds.logger.info(f"Files DataFrame shape: {ds.files.shape}")
-    ds.logger.info(f"Files DataFrame columns: {ds.files.columns.tolist()}")
-    ds.logger.info(f"Files in dataset:\n{ds.files}")
+    # Handle sample sheet upload if provided
+    samplesheet_file = ds.params.get('samplesheet_file')
+    if samplesheet_file and samplesheet_file.startswith('data:'):
+        try:
+            # Decode data URL (format: data:text/csv;base64,<content>)
+            _, encoded = samplesheet_file.split(',', 1)
+            content = base64.b64decode(encoded)
+            
+            # Save as samplesheet.csv in dataset root
+            samplesheet_path = os.path.join(ds.dataset_root, "samplesheet.csv")
+            with open(samplesheet_path, 'wb') as f:
+                f.write(content)
+            ds.logger.info(f"Sample sheet saved to: {samplesheet_path}")
+        except Exception as e:
+            ds.logger.error(f"Error saving sample sheet: {e}")
     
     # Check if we have an input_dir parameter
     input_dir = ds.params.get('input_dir')
@@ -43,10 +51,6 @@ def main():
     else:
         ds.logger.warning("ds.files DataFrame is empty. This may be normal if files aren't registered in Cirro metadata.")
         ds.logger.info("Nextflow will validate files exist at the input_dir S3 path")
-    
-    # The process-input.json handles parameter mapping, 
-    # but we could also add/modify params here if needed:
-    # ds.add_param("custom_param", "value")
 
 if __name__ == "__main__":
     main()
