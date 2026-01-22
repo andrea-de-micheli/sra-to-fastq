@@ -28,8 +28,8 @@ log.info """
 process SRA_TO_FASTQ {
     tag "${sra_file.simpleName}"
     
-    // Use BioContainers image for sra-tools
-    container "quay.io/biocontainers/sra-tools:3.0.3--h87f3376_0"
+    // Use conda to install sra-tools and pigz
+    conda 'bioconda::sra-tools=3.0.3 conda-forge::pigz'
     
     // Resource allocation
     cpus params.threads
@@ -58,8 +58,8 @@ process SRA_TO_FASTQ {
         --outdir . \\
         ${sra_file}
     
-    # Compress all resulting FASTQ files
-    gzip -f *.fastq
+    # Compress all resulting FASTQ files in parallel using pigz
+    pigz -p ${task.cpus} -f *.fastq
     
     # Rename files to use clean sample names if needed
     # (fasterq-dump already uses the SRA ID as prefix)
