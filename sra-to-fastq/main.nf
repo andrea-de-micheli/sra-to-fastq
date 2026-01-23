@@ -28,8 +28,8 @@ log.info """
 process SRA_TO_FASTQ {
     tag "${sra_file.simpleName}"
     
-    // Use BioContainers image for sra-tools
-    container "quay.io/biocontainers/sra-tools:3.0.3--h87f3376_0"
+    // Use conda to get both sra-tools AND pigz
+    conda 'bioconda::sra-tools=3.0.3 conda-forge::pigz'
     
     // Resource allocation
     cpus params.threads
@@ -48,25 +48,6 @@ process SRA_TO_FASTQ {
     script:
     def prefix = sra_file.simpleName
     """
-    # Trying to instasll pigz if not available in a couple of different ways, not sure what's possible within this container...
-    if ! command -v pigz &> /dev/null; then
-        # Try mamba first (faster, often available in BioContainers)
-        if command -v mamba &> /dev/null; then
-            mamba install -y -c conda-forge pigz
-        # Try conda
-        elif command -v conda &> /dev/null; then
-            conda install -y -c conda-forge pigz
-        # Try system package managers
-        elif command -v apt-get &> /dev/null; then
-            apt-get update -qq && apt-get install -y pigz
-        elif command -v yum &> /dev/null; then
-            yum install -y pigz
-        else
-            echo "ERROR: pigz not found and no package manager available to install it"
-            exit 1
-        fi
-    fi
-    
     # Run fasterq-dump with split-files for paired-end support
     fasterq-dump \\
         --split-files \\
@@ -79,7 +60,6 @@ process SRA_TO_FASTQ {
     
     # Compress all resulting FASTQ files in parallel using pigz
     pigz -p ${task.cpus} -f *.fastq
-
     """
 }
 
