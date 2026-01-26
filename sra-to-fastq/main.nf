@@ -28,8 +28,8 @@ log.info """
 process SRA_TO_FASTQ {
     tag "${sra_file.simpleName}"
     
-    // Use conda to get both sra-tools AND pigz
-    conda 'bioconda::sra-tools=3.0.3 conda-forge::pigz'
+    // Use BioContainers image for sra-tools
+    container "quay.io/biocontainers/sra-tools:3.0.3--h87f3376_0"
     
     // Resource allocation
     cpus params.threads
@@ -48,6 +48,34 @@ process SRA_TO_FASTQ {
     script:
     def prefix = sra_file.simpleName
     """
+    # Download and compile pigz if not available
+    if ! command -v pigz &> /dev/null; then
+        echo "Downloading and compiling pigz..."
+        PIGZ_DIR=\$(pwd)/.pigz
+        mkdir -p \$PIGZ_DIR
+        cd \$PIGZ_DIR
+        
+        # Download source from GitHub
+        curl -fsSL -L -o pigz.tar.gz https://github.com/madler/pigz/archive/refs/tags/v2.8.tar.gz || \\
+        curl -fsSL -L -o pigz.tar.gz https://zlib.net/pigz/pigz-2.8.tar.gz
+        
+        tar -xzf pigz.tar.gz
+        cd pigz-2.8
+        make
+        cp pigz ../pigz
+        cd ..
+        
+        # Add to PATH
+        export PATH=\$(pwd):\$PATH
+        cd - > /dev/null
+        
+        # Verify it works
+        if ! pigz -h &> /dev/null; then
+            echo "ERROR: Failed to compile pigz"
+            exit 1
+        fi
+    fi
+    
     # Run fasterq-dump with split-files for paired-end support
     fasterq-dump \\
         --split-files \\
