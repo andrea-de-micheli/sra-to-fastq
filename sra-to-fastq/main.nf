@@ -23,9 +23,9 @@ log.info """
     .stripIndent()
 
 /*
- * Process: Convert SRA to FASTQ
+ * Process: Extract FASTQ from SRA
  */
-process SRA_TO_FASTQ {
+process EXTRACT_FASTQ {
     tag "${sra_file.simpleName}"
     
     // Use BioContainers image for sra-tools
@@ -34,49 +34,16 @@ process SRA_TO_FASTQ {
     // Resource allocation
     cpus params.threads
     memory '32 GB'
-    disk '2500 GB'
-    
-    // Publish outputs to results directory
-    publishDir "${params.outdir}", mode: 'copy', pattern: "*.fastq.gz"
     
     input:
     path sra_file
     
     output:
-    path "*.fastq.gz", emit: fastq
+    // One or more FASTQ files per SRA (e.g. *_1.fastq, *_2.fastq)
+    path "*.fastq", emit: fastq_files
     
     script:
-    def prefix = sra_file.simpleName
     """
-    # Download and compile pigz if not available
-    if ! command -v pigz &> /dev/null; then
-        echo "Downloading and compiling pigz..."
-        PIGZ_DIR=\$(pwd)/.pigz
-        mkdir -p \$PIGZ_DIR
-        cd \$PIGZ_DIR
-        
-        # Download source from GitHub
-        curl -fsSL -L -o pigz.tar.gz https://github.com/madler/pigz/archive/refs/tags/v2.8.tar.gz || \\
-        curl -fsSL -L -o pigz.tar.gz https://zlib.net/pigz/pigz-2.8.tar.gz
-        
-        tar -xzf pigz.tar.gz
-        cd pigz-2.8
-        make
-        cp pigz ../pigz
-        cd ..
-        
-        # Add to PATH
-        export PATH=\$(pwd):\$PATH
-        cd - > /dev/null
-        
-        # Verify it works
-        if ! pigz -h &> /dev/null; then
-            echo "ERROR: Failed to compile pigz"
-            exit 1
-        fi
-    fi
-    
-    # Run fasterq-dump with split-files for paired-end support
     fasterq-dump \\
         --split-files \\
         --threads ${task.cpus} \\
@@ -85,9 +52,33 @@ process SRA_TO_FASTQ {
         --temp . \\
         --outdir . \\
         ${sra_file}
+    """
+}
+
+/*
+ * Process: Compress FASTQ with pigz
+ */
+process COMPRESS_FASTQ {
+    tag "${fastq.simpleName}"
     
-    # Compress all resulting FASTQ files in parallel using pigz
-    pigz -p ${task.cpus} -f *.fastq
+    // Use a container that has pigz
+    container "quay.io/biocontainers/pigz:2.8--h2797004_0"
+    
+    cpus params.threads
+    memory '8 GB'
+    
+    // Publish compressed outputs to results directory
+    publishDir "${params.outdir}", mode: 'copy', pattern: "*.fastq.gz"
+    
+    input:
+    path fastq
+    
+    output:
+    path "*.fastq.gz"
+    
+    script:
+    """
+    pigz -p ${task.cpus} ${fastq}
     """
 }
 
@@ -126,8 +117,21 @@ workflow {
     // Log what we found
     sra_ch.view { "Found SRA file: ${it}" }
     
-    // Run the conversion
-    SRA_TO_FASTQ(sra_ch)
+    /*
+     * Stage 1: Extract FASTQ
+     */
+    EXTRACT_FASTQ(sra_ch)
+    def fastq_ch = EXTRACT_FASTQ.out.fastq_files
+    
+    // Flatten to handle multiple FASTQ files per SRA
+    fastq_ch
+        .flatten()
+        .set { individual_fastq }
+    
+    /*
+     * Stage 2: Compress each FASTQ in parallel
+     */
+    COMPRESS_FASTQ(individual_fastq)
 }
 
 // On completion
