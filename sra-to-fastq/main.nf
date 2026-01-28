@@ -62,7 +62,7 @@ process COMPRESS_FASTQ {
     tag "${fastq.simpleName}"
     
     // Use a container that has pigz
-    container "quay.io/biocontainers/pigz:2.8--h2797004_0"
+    container "quay.io/biocontainers/mulled-v2-5f89fe0cd045cb1d615630b9261a1d17943a9b6a"
     
     cpus params.threads
     memory '8 GB'
