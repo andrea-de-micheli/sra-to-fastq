@@ -1,0 +1,74 @@
+{
+    "ui": {
+        "min_genes": {
+            "ui:help": "Hard minimum genes per cell before MAD filtering."
+        },
+        "min_counts": {
+            "ui:help": "Hard minimum UMI counts per cell before MAD filtering."
+        },
+        "n_mads": {
+            "ui:help": "Number of MADs used to detect outliers for counts, genes, and MT%."
+        },
+        "mt_cutoff": {
+            "ui:help": "Optional absolute mitochondrial percentage cutoff. Leave empty to use MAD-based cutoff."
+        },
+        "expected_doublet_rate": {
+            "ui:help": "Expected doublet rate passed to Scrublet."
+        },
+        "skip_doublets": {
+            "ui:help": "Skip Scrublet doublet detection and doublet removal."
+        }
+    },
+    "form": {
+        "title": "H5AD Single-Cell QC Preprocessing",
+        "description": "Scan all h5ad files in the input dataset, run QC preprocessing per file, and emit per-file outputs.",
+        "type": "object",
+        "properties": {
+            "min_genes": {
+                "title": "Minimum Genes",
+                "description": "Hard minimum genes detected per cell",
+                "type": "integer",
+                "default": 200,
+                "minimum": 0
+            },
+            "min_counts": {
+                "title": "Minimum Counts",
+                "description": "Hard minimum UMI counts per cell",
+                "type": "integer",
+                "default": 500,
+                "minimum": 0
+            },
+            "n_mads": {
+                "title": "Number of MADs",
+                "description": "MAD multiplier for outlier thresholds",
+                "type": "number",
+                "default": 3.0,
+                "exclusiveMinimum": 0
+            },
+            "mt_cutoff": {
+                "title": "Mitochondrial Percent Cutoff (Optional)",
+                "description": "Absolute MT% cutoff. Leave empty to use MAD-based MT% threshold.",
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "default": null,
+                "minimum": 0
+            },
+            "expected_doublet_rate": {
+                "title": "Expected Doublet Rate",
+                "description": "Expected doublet rate used by Scrublet",
+                "type": "number",
+                "default": 0.06,
+                "minimum": 0,
+                "maximum": 1
+            },
+            "skip_doublets": {
+                "title": "Skip Doublet Detection",
+                "description": "If selected, skip Scrublet scoring and doublet removal",
+                "type": "boolean",
+                "default": false
+            }
+        }
+    }
+}

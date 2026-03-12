@@ -1,0 +1,10 @@
+{
+    "input_dir": "$.inputs[*].dataPath",
+    "min_genes": "$.dataset.params.min_genes",
+    "min_counts": "$.dataset.params.min_counts",
+    "n_mads": "$.dataset.params.n_mads",
+    "mt_cutoff": "$.dataset.params.mt_cutoff",
+    "expected_doublet_rate": "$.dataset.params.expected_doublet_rate",
+    "skip_doublets": "$.dataset.params.skip_doublets",
+    "outdir": "$.dataset.dataPath"
+}
